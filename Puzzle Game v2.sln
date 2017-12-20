@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game v2.Plugins", "Puzzle Game v2.Plugins.csproj", "{53FFB573-1D86-713C-D6FE-1635950A832B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game v2", "Puzzle Game v2.csproj", "{F22C8463-18FB-D98A-83A8-C9CC38D8F68B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game v2.Editor.Plugins", "Puzzle Game v2.Editor.Plugins.csproj", "{398DE71C-491A-86D2-9088-516B32F9448F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game v2.Editor", "Puzzle Game v2.Editor.csproj", "{C174D5D7-DECA-E076-199F-EF5A2E14B8F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{53FFB573-1D86-713C-D6FE-1635950A832B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53FFB573-1D86-713C-D6FE-1635950A832B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53FFB573-1D86-713C-D6FE-1635950A832B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53FFB573-1D86-713C-D6FE-1635950A832B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F22C8463-18FB-D98A-83A8-C9CC38D8F68B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F22C8463-18FB-D98A-83A8-C9CC38D8F68B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F22C8463-18FB-D98A-83A8-C9CC38D8F68B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F22C8463-18FB-D98A-83A8-C9CC38D8F68B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{398DE71C-491A-86D2-9088-516B32F9448F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{398DE71C-491A-86D2-9088-516B32F9448F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{398DE71C-491A-86D2-9088-516B32F9448F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{398DE71C-491A-86D2-9088-516B32F9448F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C174D5D7-DECA-E076-199F-EF5A2E14B8F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C174D5D7-DECA-E076-199F-EF5A2E14B8F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C174D5D7-DECA-E076-199F-EF5A2E14B8F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C174D5D7-DECA-E076-199F-EF5A2E14B8F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

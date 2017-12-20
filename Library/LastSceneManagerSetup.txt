@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/_Scenes/LevelEditor/Main_LE.unity
+  isLoaded: 1
+  isActive: 1

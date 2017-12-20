@@ -1,0 +1,30 @@
+fileFormatVersion: 2
+guid: d3e80e3cc6568494582d3f6a5625dbb6
+timeCreated: 1513292642
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Spectral SC
+  fontNames:
+  - Spectral SC
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 5fdf96056469fc444af6b81bbdb9473f, type: 3}
+  - {fileID: 12800000, guid: bd93c3653831f854bb7d76a34bc4b1db, type: 3}
+  - {fileID: 12800000, guid: 74ed4b65f4789964888004eef967ce91, type: 3}
+  - {fileID: 12800000, guid: 416002b7223034049a8a97d332753745, type: 3}
+  - {fileID: 12800000, guid: 170cb7d7b7450244d9f490762af49144, type: 3}
+  - {fileID: 12800000, guid: ce8b832aae84c3740ab63a74bef7bd57, type: 3}
+  - {fileID: 12800000, guid: 8247e6cc2a1fc1641b0c033e38206335, type: 3}
+  - {fileID: 12800000, guid: 1dcbb14db71e6de4a92d804f1cca011b, type: 3}
+  - {fileID: 12800000, guid: 643e848dabc3d82429024d45aab2919e, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

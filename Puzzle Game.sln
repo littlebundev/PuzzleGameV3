@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2017
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game.Plugins", "Puzzle Game.Plugins.csproj", "{557E6A2D-045E-4B1B-6C97-C12DFEA6B8A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game", "Puzzle Game.csproj", "{2AABF7DA-8ACC-496B-1760-65F768620286}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game.Editor.Plugins", "Puzzle Game.Editor.Plugins.csproj", "{7F915508-767C-CA5E-DC4B-0B128115036B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Puzzle Game.Editor", "Puzzle Game.Editor.csproj", "{00B46329-C1F7-A207-F2D7-96C25ADB9C0D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{557E6A2D-045E-4B1B-6C97-C12DFEA6B8A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{557E6A2D-045E-4B1B-6C97-C12DFEA6B8A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{557E6A2D-045E-4B1B-6C97-C12DFEA6B8A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{557E6A2D-045E-4B1B-6C97-C12DFEA6B8A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2AABF7DA-8ACC-496B-1760-65F768620286}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2AABF7DA-8ACC-496B-1760-65F768620286}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2AABF7DA-8ACC-496B-1760-65F768620286}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2AABF7DA-8ACC-496B-1760-65F768620286}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F915508-767C-CA5E-DC4B-0B128115036B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F915508-767C-CA5E-DC4B-0B128115036B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F915508-767C-CA5E-DC4B-0B128115036B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F915508-767C-CA5E-DC4B-0B128115036B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{00B46329-C1F7-A207-F2D7-96C25ADB9C0D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00B46329-C1F7-A207-F2D7-96C25ADB9C0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00B46329-C1F7-A207-F2D7-96C25ADB9C0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00B46329-C1F7-A207-F2D7-96C25ADB9C0D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
