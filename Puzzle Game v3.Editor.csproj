@@ -229,8 +229,6 @@
     <Compile Include="Assets\Skyboxes\freeHDRI_assets\Editor\ImageEffects\VignetteAndChromaticAberrationEditor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Assets\Plugins\FastMobileBloom\FastMobileBloom.shader" />
-    <None Include="Assets\Plugins\FastMobileBloom\readme.txt" />
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyPBRShader.shader" />
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyUnlitShader.shader" />
     <None Include="Assets\Plugins\UnityPurchasing\script\link.xml" />
