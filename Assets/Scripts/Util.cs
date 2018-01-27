@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Util : MonoBehaviour {
+
+	// Rotation and Movement utility functions
 
 	public static IEnumerator RotateObject(GameObject obj, Vector3 rotationAmount, Vector3 rotationDirection, float rotationTime) {
 		Vector3 beginningRotation = obj.transform.eulerAngles;
@@ -59,4 +62,22 @@ public class Util : MonoBehaviour {
 			yield return null;
 		}
 	}
+
+	public static void SetRectTransform(GameObject obj, float width, float height) {
+		RectTransform rt = obj.GetComponent<RectTransform>();
+		rt.sizeDelta = new Vector2(width, height);
+	}
+
+
+	// Fading and Alpha utility funcitons
+
+	public static IEnumerator FadeImageAlpha(Image image, float newAlpha, float fadeTime) {
+		float oldAlpha = image.color.a;
+		for (float t = 0f; t < 1.0f; t += Time.deltaTime / fadeTime) {
+			Color tempColor = new Color(0, 0, 0, Mathf.Lerp(oldAlpha, newAlpha, t));
+			image.color = tempColor;
+			yield return null;
+		}
+	}
+
 }

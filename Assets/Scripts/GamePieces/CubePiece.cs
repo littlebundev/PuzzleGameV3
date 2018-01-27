@@ -47,8 +47,10 @@ public class CubePiece : GamePiece {
 			yield return StartCoroutine(Util.TranslateObject(gameObject, Vector3.up, activateMvtAmt, activationTime));
 			directionButtonGroup.SetActive(true);
 		} else {
+			Debug.Log("before");
 			directionButtonGroup.SetActive(false);
 			yield return StartCoroutine(Util.TranslateObject(gameObject, Vector3.up, -activateMvtAmt, activationTime));
+			Debug.Log("after");
 		}
 		pieceAnimating = false;
 		GameController.GetInstance().AnimateEnd();
@@ -61,39 +63,42 @@ public class CubePiece : GamePiece {
 	}
 	public IEnumerator Rotate(Direction direction, bool mainAction) {
 		
-		//if (!mainAction)
-		//	pieceAnimating = true;
-		//GameController.GetInstance().AnimateStart();
-		//GameController.GetInstance().PieceActionStart();
 		if (mainAction) {
 			GameController.GetInstance().AnimateStart(5);
 			GameController.GetInstance().PieceAction(XPos, ZPos, true, direction);
 		}
 		directionButtonGroup.SetActive(false);
-		switch (direction) {
-			case Direction.NORTH:
-				yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.right, 90, rotationTime));
-				ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.NORTH_SOUTH);
-				break;
-			case Direction.SOUTH:
-				yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.right, -90, rotationTime));
-				ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.NORTH_SOUTH);
-				break;
-			case Direction.EAST:
-				yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.forward, -90, rotationTime));
-				ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.EAST_WEST);
-				break;
-			case Direction.WEST:
-				yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.forward, 90, rotationTime));
-				ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.EAST_WEST);
-				break;
+
+		if (!GameController.GetInstance().editingLevel) {
+			switch (direction) {
+				case Direction.NORTH:
+					yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.right, 90, rotationTime));
+					ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.NORTH_SOUTH);
+					break;
+				case Direction.SOUTH:
+					yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.right, -90, rotationTime));
+					ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.NORTH_SOUTH);
+					break;
+				case Direction.EAST:
+					yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.forward, -90, rotationTime));
+					ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.EAST_WEST);
+					break;
+				case Direction.WEST:
+					yield return StartCoroutine(Util.RotateObjectAround(model.gameObject, gameObject.transform.forward, 90, rotationTime));
+					ChangeOrientation(Orientation.TOP_BOTTOM, Orientation.EAST_WEST);
+					break;
+			}
+		} else {
+#if UNITY_EDITOR
+			//Debug.Log("Test mainAction cube");
+#endif
 		}
-		
-		if (mainAction) {
+
+		if (mainAction && !GameController.GetInstance().editingLevel) {
 			yield return StartCoroutine(Activate(false));
 		} else
 			pieceAnimating = false;
-		GameController.GetInstance().PieceActionFinished();
+		//GameController.GetInstance().PieceActionFinished();
 		GameController.GetInstance().AnimateEnd();
 	}
 	private void ChangeOrientation(Orientation orientation1, Orientation orientation2) {

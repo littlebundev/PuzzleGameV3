@@ -32,8 +32,6 @@ public class LEGameBoard : MonoBehaviour {
 				lePieces[x, z] = newPiece;
 				lePieces[x, z].XPos = x;
 				lePieces[x, z].ZPos = z;
-				//lePieces[x, z].transform.LookAt(new Vector3(0, lePieces[x, z].transform.position.y, 0));
-				//lePieces[x, z].transform.Rotate(-90, 0, 0);
 			}
 		}
 	}

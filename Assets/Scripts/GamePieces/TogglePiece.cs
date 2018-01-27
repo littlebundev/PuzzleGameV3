@@ -15,7 +15,6 @@ public class TogglePiece : GamePiece {
 
 
 	public override void Clicked() {
-		Debug.Log("clicked");
 		StartCoroutine(Flip(true));
 	}
 
@@ -26,12 +25,19 @@ public class TogglePiece : GamePiece {
 			GameController.GetInstance().AnimateStart(5);
 			GameController.GetInstance().PieceAction(XPos, ZPos);
 		}
-		if (!toggled) {
-			yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.right, 90, 2f * flipTime / 3f);
-			yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.up, -45, flipTime / 3f);
+		if (!GameController.GetInstance().editingLevel) {
+			if (!toggled) {
+				yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.right, 90, 2f * flipTime / 3f);
+				yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.up, -45, flipTime / 3f);
+			} else {
+				yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.up, 45, flipTime / 3f);
+				yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.right, -90, 2f * flipTime / 3f);
+			}
 		} else {
-			yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.up, 45, flipTime / 3f);
-			yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.right, -90, 2f * flipTime / 3f);
+#if UNITY_EDITOR
+			Debug.Log("Test mainAction toggle");
+
+#endif
 		}
 		pieceAnimating = false;
 		GameController.GetInstance().AnimateEnd();

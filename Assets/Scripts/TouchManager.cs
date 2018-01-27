@@ -29,35 +29,51 @@ public class TouchManager : MonoBehaviour {
 #endif
 			RaycastHit hit;
 
-			switch (GameController.GetInstance().CurrentState) {
+#if UNITY_EDITOR
+			// Level Editor not needed in android build-------------------------------------------------------
+			//if (editingLevels) {
+			//	if (Physics.Raycast(ray, out hit)) {
+			//		if (hit.collider != null) {
+			//			GameObject obj = hit.collider.gameObject;
+			//			if (obj.GetComponent<GamePiece>() != null) {
+			//				obj.GetComponent<GamePiece>().ClickedEditing();
+			//			}
+			//		}
+			//	}
+			//} else {
+#endif
+				switch (GameController.GetInstance().CurrentState) {
 
-				case GameController.State.READY:
-					if (Physics.Raycast(ray, out hit)) {
-						if (hit.collider != null) {
-							GameObject obj = hit.collider.gameObject;
-							if (obj.GetComponent<GamePiece>() != null) {
-								obj.GetComponent<GamePiece>().Clicked();
-							} 
-						}
-					}
-					break;
-
-				case GameController.State.PIECE_ACTIVATED:
-					if (Physics.Raycast(ray, out hit)) {
-						if (hit.collider != null) {
-							GameObject obj = hit.collider.gameObject;
-							// Check for activated CubePiece click
-							if (obj.GetComponent<CubePieceTurnButton>() != null) {
-								obj.GetComponent<CubePieceTurnButton>().Clicked();
-							} else if (GameController.GetInstance().ActivePiece != null && GameController.GetInstance().ActivePiece.GetComponent<CubePiece>() != null) {
-								GameController.GetInstance().ActivePiece.GetComponent<CubePiece>().Clicked();
+					case GameController.State.READY:
+						if (Physics.Raycast(ray, out hit)) {
+							if (hit.collider != null) {
+								GameObject obj = hit.collider.gameObject;
+								if (obj.GetComponent<GamePiece>() != null) {
+									obj.GetComponent<GamePiece>().Clicked();
+								}
 							}
 						}
-					} else if (GameController.GetInstance().ActivePiece != null && GameController.GetInstance().ActivePiece.GetComponent<CubePiece>() != null) { 
+						break;
+
+					case GameController.State.PIECE_ACTIVATED:
+						if (Physics.Raycast(ray, out hit)) {
+							if (hit.collider != null) {
+								GameObject obj = hit.collider.gameObject;
+								// Check for activated CubePiece click
+								if (obj.GetComponent<CubePieceTurnButton>() != null) {
+									obj.GetComponent<CubePieceTurnButton>().Clicked();
+								} else if (GameController.GetInstance().ActivePiece != null && GameController.GetInstance().ActivePiece.GetComponent<CubePiece>() != null) {
+									GameController.GetInstance().ActivePiece.GetComponent<CubePiece>().Clicked();
+								}
+							}
+						} else if (GameController.GetInstance().ActivePiece != null && GameController.GetInstance().ActivePiece.GetComponent<CubePiece>() != null) {
 							GameController.GetInstance().ActivePiece.GetComponent<CubePiece>().Clicked();
-					}
-					break;
-			}
+						}
+						break;
+				}
+#if UNITY_EDITOR
+			//}
+#endif
 		}
 	}
 }

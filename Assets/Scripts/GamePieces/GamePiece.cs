@@ -16,7 +16,7 @@ public abstract class GamePiece : MonoBehaviour {
 
 	public PieceType pieceType;
 	[SerializeField]
-	Level.GP_LUT gpLU;
+	Pack.Level.GP_LUT gpLU;
 
 	public int XPos { get; set; }
 	public int ZPos { get; set; }
@@ -44,7 +44,7 @@ public abstract class GamePiece : MonoBehaviour {
 		return prefabIndex;
 	}
 
-	public Level.GP_LUT GetGPLU() {
+	public Pack.Level.GP_LUT GetGPLU() {
 		return gpLU;
 	}
 
@@ -64,4 +64,13 @@ public abstract class GamePiece : MonoBehaviour {
 	public bool IsGlowing() {
 		return isGlowing;
 	}
+
+#if UNITY_EDITOR
+	// Level Editor methods, not needed in android build-------------------------------------------------------
+
+	//public void ClickedEditing() {
+	//	GameController.GetInstance().ClickedEditing(XPos, ZPos);
+	//}
+
+#endif
 }

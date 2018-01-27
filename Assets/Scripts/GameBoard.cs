@@ -48,13 +48,10 @@ public class GameBoard : MonoBehaviour {
 
 
 	private void Start() {
-		FindObjectOfType<Camera>().transform.LookAt(Vector3.zero);
-		Debug.Log("1");
-		SetStartPositions();
-		Debug.Log("2");
-		InitGamePieces(GameController.GetInstance().GetCurrentLevel());
-		Debug.Log("3");
-		StartCoroutine(UpdatePathsAndCheckForWin());
+		//FindObjectOfType<Camera>().transform.LookAt(Vector3.zero);
+		//SetStartPositions();
+		//InitGamePieces(GameController.GetInstance().GetCurrentLevel());
+		//StartCoroutine(UpdatePathsAndCheckForWin());
 #if UNITY_EDITOR
 		LEGameBoard leGameBoard = FindObjectOfType<LEGameBoard>();
 		if (leGameBoard != null) leGameBoard.Populate();
@@ -71,9 +68,11 @@ public class GameBoard : MonoBehaviour {
 
 
 	// Populate board from level data file
-	public void InitGamePieces(Level level) {
+	public void InitGamePieces(Pack.Level level) {
+		SetStartPositions();
 		gamePieces = new GamePiece[BOARD_SIZE_X, BOARD_SIZE_Z];
-		Level.GP_LUT[,] pieceLU = level.pieceLU;
+		Pack.Level.GP_LUT[,] pieceLU;
+		pieceLU = level.pieceLU;
 		for (int x = 0; x < BOARD_SIZE_X; x++) {
 			for (int z = 0; z < BOARD_SIZE_Z; z++) {
 				gamePieces[x, z] = Instantiate(GamePieceFromLevelLUT(pieceLU[x, z]),
@@ -85,20 +84,64 @@ public class GameBoard : MonoBehaviour {
 				gamePieces[x, z].ZPos = z;
 			}
 		}
+		StartCoroutine(UpdatePathsAndCheckForWin());
 	}
+#if UNITY_EDITOR
+	public void Clear() {
+		for (int x = 0; x < BOARD_SIZE_X; x++) {
+			for (int z = 0; z < BOARD_SIZE_Z; z++) {
+				DestroyImmediate(gamePieces[x, z].gameObject);
+			}
+		}
+		startPiece = null;
+		endPieceList.Clear();
+	}
+#endif
 
 
 	// Piece action was performed by player, cascade to adjacent pieces if needed
 	public IEnumerator PieceAction(int x, int z, bool wasCubePiece, CubePiece.Direction direction) {
 		// Perform action on adjacent GamePieces, N->E->S->W
 		//Debug.Log("PieceAction " + x + "," + z);
+
+#if UNITY_EDITOR
+		if (GameController.GetInstance().editingLevel) {
+			LERotatePiece(x, z, true, direction);
+			if (wasCubePiece) {
+				GameController.GetInstance().ActivePiece = gamePieces[x, z];
+				StartCoroutine((gamePieces[x, z] as CubePiece).Activate(false));
+			}
+		}
+#endif
+
 		z = z + 1;
 		for (int i = 0; i < 4; i++) {
 			yield return new WaitForSeconds(adjacentAnimWait);
 			// If piece exists, perform action, else decrease animation counter
-			if (DoesPieceExist(x, z))
+			if (DoesPieceExist(x, z)) {
+#if UNITY_EDITOR
+				if (GameController.GetInstance().editingLevel)
+					if (wasCubePiece) {
+						LERotatePiece(x, z, true, direction);
+					} else {
+						switch (i) {
+							case 0:
+								LERotatePiece(x, z, true, CubePiece.Direction.NORTH);
+								break;
+							case 1:
+								LERotatePiece(x, z, true, CubePiece.Direction.EAST);
+								break;
+							case 2:
+								LERotatePiece(x, z, true, CubePiece.Direction.SOUTH);
+								break;
+							case 3:
+								LERotatePiece(x, z, true, CubePiece.Direction.WEST);
+								break;
+						}
+					}
+#endif
 				DetermineAction(x, z, direction);
-			else
+			} else
 				GameController.GetInstance().AnimateEnd();
 			if (!wasCubePiece) direction++;
 
@@ -113,17 +156,31 @@ public class GameBoard : MonoBehaviour {
 		return x >= 0 && x < BOARD_SIZE_X &&
 			   z >= 0 && z < BOARD_SIZE_Z &&
 			   gamePieces[x, z] != null &&
-			   gamePieces[x,z].pieceType != GamePiece.PieceType.NULL;
+			   gamePieces[x, z].pieceType != GamePiece.PieceType.NULL;
 	}
 	// Determine what type of GamePiece needs action and perform the action
 	public void DetermineAction(int x, int z, CubePiece.Direction direction) {
 		if (gamePieces[x, z].pieceType == GamePiece.PieceType.CUBE) {
-			//((CubePiece)gamePieces[x, z]).Turn(direction, false);
-			StartCoroutine(((CubePiece)gamePieces[x, z]).Rotate(direction, false));
+			//if (!GameController.GetInstance().editingLevel) {
+				StartCoroutine(((CubePiece)gamePieces[x, z]).Rotate(direction, false));
+			//} else {
+			//	Debug.Log("test");
+			//	GameController.GetInstance().AnimateEnd();
+			//}
 		} else if (gamePieces[x, z].pieceType == GamePiece.PieceType.ROTATION) {
-			StartCoroutine(((RotationPiece)gamePieces[x, z]).Rotate(false));
+			if (!GameController.GetInstance().editingLevel) {
+				StartCoroutine(((RotationPiece)gamePieces[x, z]).Rotate(false));
+			} else {
+				Debug.Log("test");
+				GameController.GetInstance().AnimateEnd();
+			}
 		} else if (gamePieces[x, z].pieceType == GamePiece.PieceType.TOGGLE) {
-			StartCoroutine(((TogglePiece)gamePieces[x, z]).Flip(false));
+			if (!GameController.GetInstance().editingLevel) {
+				StartCoroutine(((TogglePiece)gamePieces[x, z]).Flip(false));
+			} else {
+				Debug.Log("test");
+				GameController.GetInstance().AnimateEnd();
+			}
 		} else
 			GameController.GetInstance().AnimateEnd();
 	}
@@ -141,10 +198,13 @@ public class GameBoard : MonoBehaviour {
 						gamePieces[x, z].InWinPath(false);
 				}
 			}
-			
+
 			//GameController.GetInstance().AnimateEnd();
-			if (endCount == endPieceList.Count && GameController.GetInstance().CurrentState == GameController.State.READY) {
-				GameController.GetInstance().Win();
+			if (!GameController.GetInstance().inMenu) {
+				if (endCount == endPieceList.Count && GameController.GetInstance().CurrentState == GameController.State.READY) {
+					GameController.GetInstance().Win();
+				} else
+					GameController.GetInstance().CheckForLoss();
 			}
 			endCount = 0;
 		}
@@ -177,23 +237,23 @@ public class GameBoard : MonoBehaviour {
 			}
 		}
 	}
-	
 
-	private GamePiece GamePieceFromLevelLUT(Level.GP_LUT gpLU) {
-		if (gpLU == Level.GP_LUT.CUBE_TB) return cubePrefabs[0];
-		else if (gpLU == Level.GP_LUT.CUBE_EW) return cubePrefabs[1];
-		else if (gpLU == Level.GP_LUT.CUBE_NS) return cubePrefabs[2];
-		else if (gpLU == Level.GP_LUT.ROT_ANGLED_NE) return rotationAngledPrefabs[0];
-		else if (gpLU == Level.GP_LUT.ROT_ANGLED_ES) return rotationAngledPrefabs[1];
-		else if (gpLU == Level.GP_LUT.ROT_ANGLED_SW) return rotationAngledPrefabs[2];
-		else if (gpLU == Level.GP_LUT.ROT_ANGLED_WN) return rotationAngledPrefabs[3];
-		else if (gpLU == Level.GP_LUT.ROT_STRAIGHT_NS) return rotationStraightPrefabs[0];
-		else if (gpLU == Level.GP_LUT.ROT_STRAIGHT_EW) return rotationStraightPrefabs[1];
-		else if (gpLU == Level.GP_LUT.TOGGLE_ON) return togglePrefabs[0];
-		else if (gpLU == Level.GP_LUT.TOGGLE_OFF) return togglePrefabs[1];
-		else if (gpLU == Level.GP_LUT.START) {
+
+	private GamePiece GamePieceFromLevelLUT(Pack.Level.GP_LUT gpLU) {
+		if (gpLU == Pack.Level.GP_LUT.CUBE_TB) return cubePrefabs[0];
+		else if (gpLU == Pack.Level.GP_LUT.CUBE_EW) return cubePrefabs[1];
+		else if (gpLU == Pack.Level.GP_LUT.CUBE_NS) return cubePrefabs[2];
+		else if (gpLU == Pack.Level.GP_LUT.ROT_ANGLED_NE) return rotationAngledPrefabs[0];
+		else if (gpLU == Pack.Level.GP_LUT.ROT_ANGLED_ES) return rotationAngledPrefabs[1];
+		else if (gpLU == Pack.Level.GP_LUT.ROT_ANGLED_SW) return rotationAngledPrefabs[2];
+		else if (gpLU == Pack.Level.GP_LUT.ROT_ANGLED_WN) return rotationAngledPrefabs[3];
+		else if (gpLU == Pack.Level.GP_LUT.ROT_STRAIGHT_NS) return rotationStraightPrefabs[0];
+		else if (gpLU == Pack.Level.GP_LUT.ROT_STRAIGHT_EW) return rotationStraightPrefabs[1];
+		else if (gpLU == Pack.Level.GP_LUT.TOGGLE_OFF) return togglePrefabs[0];
+		else if (gpLU == Pack.Level.GP_LUT.TOGGLE_ON) return togglePrefabs[1];
+		else if (gpLU == Pack.Level.GP_LUT.START) {
 			return startPiecePrefab;
-		} else if (gpLU == Level.GP_LUT.END) {
+		} else if (gpLU == Pack.Level.GP_LUT.END) {
 			return endPiecePrefab;
 		} else return nullPrefab;
 	}
@@ -234,7 +294,7 @@ public class GameBoard : MonoBehaviour {
 		}
 		StartCoroutine(UpdatePathsAndCheckForWin());
 	}
-	public void LERotatePiece(int x, int z) {
+	public void LERotatePiece(int x, int z, bool mixing = false, CubePiece.Direction direction = CubePiece.Direction.NORTH) {
 		int prefabIndex;
 		switch (gamePieces[x, z].pieceType) {
 			case GamePiece.PieceType.TOGGLE:
@@ -254,9 +314,42 @@ public class GameBoard : MonoBehaviour {
 				}
 				break;
 			case GamePiece.PieceType.CUBE:
-				if (gamePieces[x, z].GetPrefabIndex() == cubePrefabs.Length - 1) prefabIndex = 0;
-				else prefabIndex = gamePieces[x, z].GetPrefabIndex() + 1;
-				ReplaceGamePiece(x, z, cubePrefabs[prefabIndex]);
+				if (!mixing) {
+					if (gamePieces[x, z].GetPrefabIndex() == cubePrefabs.Length - 1) prefabIndex = 0;
+					else prefabIndex = gamePieces[x, z].GetPrefabIndex() + 1;
+					ReplaceGamePiece(x, z, cubePrefabs[prefabIndex]);
+				} else {
+					switch (gamePieces[x, z].GetPrefabIndex()) {
+						case 0:
+							switch (direction) {
+								case CubePiece.Direction.NORTH:
+								case CubePiece.Direction.SOUTH:
+									ReplaceGamePiece(x, z, cubePrefabs[2]);
+									break;
+								case CubePiece.Direction.EAST:
+								case CubePiece.Direction.WEST:
+									ReplaceGamePiece(x, z, cubePrefabs[1]);
+									break;
+							}
+							break;
+						case 1:
+							switch (direction) {
+								case CubePiece.Direction.EAST:
+								case CubePiece.Direction.WEST:
+									ReplaceGamePiece(x, z, cubePrefabs[0]);
+									break;
+							}
+							break;
+						case 2:
+							switch (direction) {
+								case CubePiece.Direction.NORTH:
+								case CubePiece.Direction.SOUTH:
+									ReplaceGamePiece(x, z, cubePrefabs[0]);
+									break;
+							}
+							break;
+					}
+				}
 				break;
 		}
 		StartCoroutine(UpdatePathsAndCheckForWin());
@@ -269,5 +362,8 @@ public class GameBoard : MonoBehaviour {
 		Destroy(gamePieces[x, z].gameObject);
 		gamePieces[x, z] = newPiece;
 	}
+
+	
 #endif
 }
+

@@ -12,11 +12,12 @@ public class LevelHandler : MonoBehaviour {
 	public static readonly int TYPE_MOVE_LIMIT = 0;
 	public static readonly int TYPE_TIME_LIMIT = 1;
 
-	private List<Level> levelList;
-	public Level CurrentLevel { get; set; }
-
-	public Level CopiedLevel { get; set; }
+	private PackList packList;
+	public Pack CurrentPack { get; set; }
+	public Pack.Level CurrentLevel { get; set; }
 	
+	public Pack.Level CopiedLevel { get; set; }
+
 	void Awake () {
 		DontDestroyOnLoad(gameObject);
 #if UNITY_EDITOR
@@ -26,22 +27,61 @@ public class LevelHandler : MonoBehaviour {
 		LEVEL_DATA_FILENAME = "jar:file://" + Application.dataPath + "!/assets/" + "levels.dat";
 		LoadLevelDataAndroid();
 #endif
-		CurrentLevel = levelList[0];
-		CopiedLevel = null;
+		SetCurrentPack(Pack.PackID.INTRO);
+		SetCurrentLevel(CurrentPack.levelList[0].levelName);
+		CopiedLevel = new Pack.Level(CurrentLevel);
 	}
 
 
-	public List<Level> GetLevelList() {
-		return levelList;
+	public List<Pack.Level> GetLevelList() {
+		return CurrentPack.levelList;
 	}
+	public PackList GetPackList() {
+		return packList;
+	}
+
 
 
 	public bool SetCurrentLevel(int levelNumber) {
-		Debug.Log("levelList.Count " + levelList.Count);
-		if (levelNumber < levelList.Count) {
-			CurrentLevel = levelList[levelNumber];
+		if (levelNumber < CurrentPack.levelList.Count) {
+			CurrentLevel = CurrentPack.levelList[levelNumber];
 			return true;
 		} else return false;
+	}
+	public bool SetCurrentLevel(string levelName) {
+		foreach (Pack.Level level in CurrentPack.levelList) {
+			if (level.levelName == levelName) {
+				CurrentLevel = level;
+				return true;
+			}
+		}
+		return false;
+	}
+	public void SetCurrentPack(Pack.PackID packId) {
+		CurrentPack = packList.GetPack(packId);
+	}
+	public bool NextPack() {
+		Pack nextPack = packList.NextPack(CurrentPack);
+		if (nextPack != null) {
+			CurrentPack = nextPack;
+			return true;
+		} else return false;
+	}
+	public bool PrevPack() {
+		Pack prevPack = packList.PrevPack(CurrentPack);
+		if (prevPack != null) {
+			CurrentPack = prevPack;
+			return true;
+		} else return false;
+	}
+
+	public int GetPackIndex(Pack pack) {
+		for (int i = 0; i < packList.Count(); i++) {
+			if (packList.GetList()[i].packId == pack.packId) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 #if UNITY_EDITOR
@@ -50,18 +90,23 @@ public class LevelHandler : MonoBehaviour {
 			try {
 				BinaryFormatter bf = new BinaryFormatter();
 				FileStream file = File.Open(LEVEL_DATA_FILENAME, FileMode.Open);
-				levelList = bf.Deserialize(file) as List<Level>;
+				packList = bf.Deserialize(file) as PackList;
 				file.Close();
 				Debug.Log("LevelHandler.LoadLevelData success");
 			} catch (Exception e) {
-				levelList = new List<Level>();
-				levelList.Add(new Level());
+				SetupLevelLists();
 				Debug.Log("LevelHandler.LoadLevelData exception: " + e.Message);
 			}
 		} else {
-			levelList = new List<Level>();
-			levelList.Add(new Level());
+			SetupLevelLists();
 			Debug.Log("LevelHandler.LoadLevelData file not found");
+		}
+	}
+	private void SetupLevelLists() {
+		packList = new PackList();
+		foreach (Pack.PackID packId in Enum.GetValues(typeof(Pack.PackID))) {
+			Debug.Log(packId);
+			packList.Add(new Pack(packId));
 		}
 	}
 #elif UNITY_ANDROID
@@ -70,7 +115,7 @@ public class LevelHandler : MonoBehaviour {
 		while(!file.isDone);
 		MemoryStream memStream = new MemoryStream(file.bytes);
 		BinaryFormatter bf = new BinaryFormatter();
-		levelList = bf.Deserialize(memStream) as List<Level>;
+		packList = bf.Deserialize(memStream) as PackList;
 		memStream.Close();
 	}
 #endif
@@ -79,7 +124,53 @@ public class LevelHandler : MonoBehaviour {
 	public void SaveLevelData() {
 		BinaryFormatter bf = new BinaryFormatter();
 		FileStream file = File.Create(LEVEL_DATA_FILENAME);
-		bf.Serialize(file, levelList);
+		//bf.Serialize(file, levelLists);
+		bf.Serialize(file, packList);
 		file.Close();
+	}
+
+
+
+	[System.Serializable]
+	public class PackList {
+		List<Pack> packList = new List<Pack>();
+		int version = 1;
+
+		public List<Pack> GetList() {
+			return packList;
+		}
+
+		public Pack GetPack(Pack.PackID packId) {
+			foreach (Pack pack in packList) {
+				if (packId == pack.packId) {
+					return pack;
+				}
+			}
+			return null;
+		}
+		public Pack NextPack(Pack pack) {
+			for (int i = 0; i < packList.Count - 1; i++) {
+				if (packList[i].packId == pack.packId) {
+					return packList[i + 1];
+				}
+			}
+			return null;
+		}
+		public Pack PrevPack(Pack pack) {
+			if (packList[0].packId == pack.packId) return null;
+			for (int i = 1; i < packList.Count; i++) {
+				if (packList[i].packId == pack.packId) {
+					return packList[i - 1];
+				}
+			}
+			return null;
+		}
+
+		public void Add(Pack pack) {
+			packList.Add(pack);
+		}
+		public int Count() {
+			return packList.Count;
+		}
 	}
 }

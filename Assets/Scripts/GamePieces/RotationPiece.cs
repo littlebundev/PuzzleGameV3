@@ -38,14 +38,20 @@ public class RotationPiece : GamePiece {
 			GameController.GetInstance().AnimateStart(5);
 			GameController.GetInstance().PieceAction(XPos, ZPos);
 		}
-		if (currentOrientation < Orientation.WEST)
-			currentOrientation++;
-		else
-			currentOrientation = Orientation.NORTH;
-		yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.up, 90, rotationTime);
+		
+		if (!GameController.GetInstance().editingLevel) {
+			if (currentOrientation < Orientation.WEST)
+				currentOrientation++;
+			else
+				currentOrientation = Orientation.NORTH;
+			yield return Util.RotateObjectAround(model.gameObject, gameObject.transform.up, 90, rotationTime);
+		} else {
+#if UNITY_EDITOR
+			Debug.Log("Test mainAction rotation");
+#endif
+		}
+
 		pieceAnimating = false;
-		//GameController.GetInstance().PieceActionFinished();
-		Debug.Log("finished rotate");
 		GameController.GetInstance().AnimateEnd();
 	}
 
