@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
-public class PackButton : MonoBehaviour {
+public class PackButton : MonoBehaviour, IPointerClickHandler, IPointerDownHandler, IPointerUpHandler {
 
 	[SerializeField]
 	Text packText;
@@ -36,12 +37,13 @@ public class PackButton : MonoBehaviour {
 	}
 
 
-	public void Click() {
-		if (inputAllowed && unlocked) {
-			StartCoroutine(ActivateAnimation());
-			FindObjectOfType<MenuController>().PackButtonClick(packId);
-		}
-	}
+	//public void Click() {
+	//	Debug.Log("PackButton clicked, inputAllowed:" + inputAllowed);
+	//	if (inputAllowed) {
+	//		StartCoroutine(ActivateAnimation());
+	//		FindObjectOfType<MenuController>().PackButtonClick(packId);
+	//	}
+	//}
 
 	private IEnumerator ActivateAnimation() {
 		inputAllowed = false;
@@ -54,15 +56,21 @@ public class PackButton : MonoBehaviour {
 	}
 
 	
-	public void Init(Pack pack, bool unlocked) {
+	public void Init(Pack pack, bool unlocked, Color color) {
 		packId = pack.packId;
 		packText.text = pack.title;
+
+		packText.color = color;
+		outerIconImage.color = color;
+		centerIconImage.color = color;
+
 		if (!unlocked) {
 			Color dimmedColor = color;
 			dimmedColor.a = dimmedAlpha;
 			packText.color = dimmedColor;
 			outerIconImage.color = dimmedColor;
 			centerIconImage.color = dimmedColor;
+			lockImage.color = dimmedColor;
 		} else {
 			lockImage.gameObject.SetActive(false);
 		}
@@ -75,6 +83,17 @@ public class PackButton : MonoBehaviour {
 		PackButton[] packButtons = FindObjectsOfType<PackButton>();
 		foreach(PackButton packButton in packButtons) {
 			packButton.SetHighlight(false);
+		}
+	}
+
+
+	public void OnPointerDown(PointerEventData eventData) { }
+	public void OnPointerUp(PointerEventData eventData) { }
+	public void OnPointerClick(PointerEventData eventData) {
+		Debug.Log("PackButton clicked, inputAllowed:" + inputAllowed);
+		if (inputAllowed) {
+			StartCoroutine(ActivateAnimation());
+			FindObjectOfType<MenuController>().PackButtonClick(packId);
 		}
 	}
 }

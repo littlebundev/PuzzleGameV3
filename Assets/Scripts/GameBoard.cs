@@ -6,10 +6,12 @@ public class GameBoard : MonoBehaviour {
 
 	public static readonly int BOARD_SIZE_X = 9;
 	public static readonly int BOARD_SIZE_Z = 5;
+	public static readonly int BOARD_SIZE_X_LARGE = 11;
+	public static readonly int BOARD_SIZE_Z_LARGE = 7;
 	// XPos, ZPos, corresponding connection index
 	public static readonly int[,] CON_MATRIX = { { 0, 1, 2 }, { 1, 0, 3 }, { 0, -1, 0 }, { -1, 0, 1 } };
 
-	private GamePiece[,] gamePieces;
+	public GamePiece[,] gamePieces;
 	private StartPiece startPiece;
 	private List<EndPiece> endPieceList = new List<EndPiece>();
 	private int endCount = 0;
@@ -45,30 +47,41 @@ public class GameBoard : MonoBehaviour {
 	float connectedAnimWait;
 	bool[,] prevConnections = new bool[BOARD_SIZE_X, BOARD_SIZE_Z];
 
+	[Header("Audio")]
+	[SerializeField]
+	AudioClip pieceClickClip;
+	[SerializeField]
+	AudioClip glowClip;
+
 
 
 	private void Start() {
-		//FindObjectOfType<Camera>().transform.LookAt(Vector3.zero);
-		//SetStartPositions();
-		//InitGamePieces(GameController.GetInstance().GetCurrentLevel());
-		//StartCoroutine(UpdatePathsAndCheckForWin());
 #if UNITY_EDITOR
 		LEGameBoard leGameBoard = FindObjectOfType<LEGameBoard>();
 		if (leGameBoard != null) leGameBoard.Populate();
 #endif
 	}
+
 	private void SetStartPositions() {
 		float xAdjustment = BOARD_SIZE_X;
-		if (xAdjustment % 2 != 0) xAdjustment -= 1;
+		if (xAdjustment % 2 != 0)
+			xAdjustment -= 1;
+		else
+			xAdjustment -= 1f;
 		float zAdjustment = BOARD_SIZE_Z;
-		if (zAdjustment % 2 != 0) zAdjustment -= 1;
+		if (zAdjustment % 2 != 0)
+			zAdjustment -= 1;
+		else
+			zAdjustment -= 1f;
 		xStartPos = -(xAdjustment * adjacentSpacing / 2f);
 		zStartPos = -(zAdjustment * adjacentSpacing / 2f);
 	}
 
 
 	// Populate board from level data file
-	public void InitGamePieces(Pack.Level level) {
+	public void InitGamePieces(Pack pack, Pack.Level level) {
+		ColorManager colorManager = FindObjectOfType<ColorManager>();
+		colorManager.SetPackIndex(pack.packId);
 		SetStartPositions();
 		gamePieces = new GamePiece[BOARD_SIZE_X, BOARD_SIZE_Z];
 		Pack.Level.GP_LUT[,] pieceLU;
@@ -78,10 +91,12 @@ public class GameBoard : MonoBehaviour {
 				gamePieces[x, z] = Instantiate(GamePieceFromLevelLUT(pieceLU[x, z]),
 						new Vector3(xStartPos + adjacentSpacing * (float)x, 0, zStartPos + adjacentSpacing * (float)z),
 						Quaternion.identity);
+				gamePieces[x, z].InitMaterials(colorManager.GetMaterials());
 				if (gamePieces[x, z].pieceType == GamePiece.PieceType.START) startPiece = gamePieces[x, z] as StartPiece;
 				if (gamePieces[x, z].pieceType == GamePiece.PieceType.END) endPieceList.Add(gamePieces[x, z] as EndPiece);
 				gamePieces[x, z].XPos = x;
 				gamePieces[x, z].ZPos = z;
+				gamePieces[x, z].transform.SetParent(transform, true);
 			}
 		}
 		StartCoroutine(UpdatePathsAndCheckForWin());
@@ -103,6 +118,8 @@ public class GameBoard : MonoBehaviour {
 	public IEnumerator PieceAction(int x, int z, bool wasCubePiece, CubePiece.Direction direction) {
 		// Perform action on adjacent GamePieces, N->E->S->W
 		//Debug.Log("PieceAction " + x + "," + z);
+		if (!GameController.GetInstance().editingLevel)
+			SoundManager.instance.PlaySingle(pieceClickClip, true);
 
 #if UNITY_EDITOR
 		if (GameController.GetInstance().editingLevel) {
@@ -111,6 +128,7 @@ public class GameBoard : MonoBehaviour {
 				GameController.GetInstance().ActivePiece = gamePieces[x, z];
 				StartCoroutine((gamePieces[x, z] as CubePiece).Activate(false));
 			}
+			FindObjectOfType<LevelEditor>().PieceClicked(gamePieces[x, z], direction);
 		}
 #endif
 
@@ -120,7 +138,7 @@ public class GameBoard : MonoBehaviour {
 			// If piece exists, perform action, else decrease animation counter
 			if (DoesPieceExist(x, z)) {
 #if UNITY_EDITOR
-				if (GameController.GetInstance().editingLevel)
+				if (GameController.GetInstance().editingLevel) {
 					if (wasCubePiece) {
 						LERotatePiece(x, z, true, direction);
 					} else {
@@ -139,6 +157,7 @@ public class GameBoard : MonoBehaviour {
 								break;
 						}
 					}
+				}
 #endif
 				DetermineAction(x, z, direction);
 			} else
@@ -161,24 +180,17 @@ public class GameBoard : MonoBehaviour {
 	// Determine what type of GamePiece needs action and perform the action
 	public void DetermineAction(int x, int z, CubePiece.Direction direction) {
 		if (gamePieces[x, z].pieceType == GamePiece.PieceType.CUBE) {
-			//if (!GameController.GetInstance().editingLevel) {
 				StartCoroutine(((CubePiece)gamePieces[x, z]).Rotate(direction, false));
-			//} else {
-			//	Debug.Log("test");
-			//	GameController.GetInstance().AnimateEnd();
-			//}
 		} else if (gamePieces[x, z].pieceType == GamePiece.PieceType.ROTATION) {
 			if (!GameController.GetInstance().editingLevel) {
 				StartCoroutine(((RotationPiece)gamePieces[x, z]).Rotate(false));
 			} else {
-				Debug.Log("test");
 				GameController.GetInstance().AnimateEnd();
 			}
 		} else if (gamePieces[x, z].pieceType == GamePiece.PieceType.TOGGLE) {
 			if (!GameController.GetInstance().editingLevel) {
 				StartCoroutine(((TogglePiece)gamePieces[x, z]).Flip(false));
 			} else {
-				Debug.Log("test");
 				GameController.GetInstance().AnimateEnd();
 			}
 		} else
@@ -203,7 +215,7 @@ public class GameBoard : MonoBehaviour {
 			if (!GameController.GetInstance().inMenu) {
 				if (endCount == endPieceList.Count && GameController.GetInstance().CurrentState == GameController.State.READY) {
 					GameController.GetInstance().Win();
-				} else
+				} else if (GameController.GetInstance().CurrentState == GameController.State.READY)
 					GameController.GetInstance().CheckForLoss();
 			}
 			endCount = 0;
@@ -304,8 +316,10 @@ public class GameBoard : MonoBehaviour {
 				break;
 			case GamePiece.PieceType.ROTATION:
 				if ((gamePieces[x, z] as RotationPiece).rotationPieceType == RotationPiece.RotationPieceType.ANGLED) {
-					if (gamePieces[x, z].GetPrefabIndex() == rotationAngledPrefabs.Length - 1) prefabIndex = 0;
-					else prefabIndex = gamePieces[x, z].GetPrefabIndex() + 1;
+					//if (gamePieces[x, z].GetPrefabIndex() == rotationAngledPrefabs.Length - 1) prefabIndex = 0;
+					//else prefabIndex = gamePieces[x, z].GetPrefabIndex() + 1;
+					if (gamePieces[x, z].GetPrefabIndex() == 0) prefabIndex = rotationAngledPrefabs.Length - 1;
+					else prefabIndex = gamePieces[x, z].GetPrefabIndex() - 1;
 					ReplaceGamePiece(x, z, rotationAngledPrefabs[prefabIndex]);
 				} else {
 					if (gamePieces[x, z].GetPrefabIndex() == rotationStraightPrefabs.Length - 1) prefabIndex = 0;

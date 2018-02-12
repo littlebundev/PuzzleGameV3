@@ -9,14 +9,19 @@ public class LevelHandler : MonoBehaviour {
 
 	public static string LEVEL_DATA_FILENAME;
 
-	public static readonly int TYPE_MOVE_LIMIT = 0;
-	public static readonly int TYPE_TIME_LIMIT = 1;
+	public static readonly float DEFAULT_CAM_POS_X = -2.5f;
+	public static readonly float DEFAULT_CAM_POS_Y = 5f;
+	public static readonly float DEFAULT_CAM_POS_Z = -5.75f;
+
+	//public static readonly int TYPE_MOVE_LIMIT = 0;
+	//public static readonly int TYPE_TIME_LIMIT = 1;
 
 	private PackList packList;
 	public Pack CurrentPack { get; set; }
 	public Pack.Level CurrentLevel { get; set; }
 	
 	public Pack.Level CopiedLevel { get; set; }
+	
 
 	void Awake () {
 		DontDestroyOnLoad(gameObject);
@@ -41,7 +46,6 @@ public class LevelHandler : MonoBehaviour {
 	}
 
 
-
 	public bool SetCurrentLevel(int levelNumber) {
 		if (levelNumber < CurrentPack.levelList.Count) {
 			CurrentLevel = CurrentPack.levelList[levelNumber];
@@ -60,29 +64,61 @@ public class LevelHandler : MonoBehaviour {
 	public void SetCurrentPack(Pack.PackID packId) {
 		CurrentPack = packList.GetPack(packId);
 	}
-	public bool NextPack() {
+
+
+	public bool GoToNextPack() {
 		Pack nextPack = packList.NextPack(CurrentPack);
-		if (nextPack != null) {
+		if (nextPack != null && nextPack.packId != Pack.PackID.INTRO) {
 			CurrentPack = nextPack;
 			return true;
 		} else return false;
 	}
-	public bool PrevPack() {
+	public bool GoToPrevPack() {
 		Pack prevPack = packList.PrevPack(CurrentPack);
 		if (prevPack != null) {
 			CurrentPack = prevPack;
 			return true;
 		} else return false;
 	}
+	public Pack GetNextPack() {
+		return packList.NextPack(CurrentPack);
+	}
 
-	public int GetPackIndex(Pack pack) {
+
+	public int GetPackIndex(Pack.PackID packId) {
 		for (int i = 0; i < packList.Count(); i++) {
-			if (packList.GetList()[i].packId == pack.packId) {
+			if (packList.GetList()[i].packId == packId) {
 				return i;
 			}
 		}
 		return -1;
 	}
+	public int GetLevelIndex(Pack.PackID packId, string levelName) {
+		for (int i = 0; i < packList.GetPack(packId).levelList.Count; i++) {
+			if (packList.GetPack(packId).levelList[i].levelName == levelName) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+
+	//public int GetCurrentLevelNumber() {
+	//	int totalLevelCount = 0;
+	//	foreach (Pack pack in packList.GetList()) {
+	//		bool levelFound = false;
+	//		foreach(Pack.Level level in pack.levelList) {
+	//			totalLevelCount++;
+	//			if (level.levelName == CurrentLevel.levelName) {
+	//				levelFound = true;
+	//				break;
+	//			}
+	//		}
+	//		if (levelFound) break;
+	//	}
+	//	return totalLevelCount;
+	//}
+
 
 #if UNITY_EDITOR
 	public void LoadLevelData() {
@@ -90,23 +126,32 @@ public class LevelHandler : MonoBehaviour {
 			try {
 				BinaryFormatter bf = new BinaryFormatter();
 				FileStream file = File.Open(LEVEL_DATA_FILENAME, FileMode.Open);
-				packList = bf.Deserialize(file) as PackList;
+				SetupNewPackList();
+				ComparePackListFile(bf.Deserialize(file) as PackList);
 				file.Close();
 				Debug.Log("LevelHandler.LoadLevelData success");
 			} catch (Exception e) {
-				SetupLevelLists();
+				SetupNewPackList();
 				Debug.Log("LevelHandler.LoadLevelData exception: " + e.Message);
 			}
 		} else {
-			SetupLevelLists();
+			SetupNewPackList();
 			Debug.Log("LevelHandler.LoadLevelData file not found");
 		}
 	}
-	private void SetupLevelLists() {
+	private void SetupNewPackList() {
 		packList = new PackList();
 		foreach (Pack.PackID packId in Enum.GetValues(typeof(Pack.PackID))) {
-			Debug.Log(packId);
 			packList.Add(new Pack(packId));
+		}
+	}
+	private void ComparePackListFile(PackList packListFromFile) {
+		for (int i = 0; i < packList.GetList().Count; i++) {
+			foreach (Pack packFromFile in packListFromFile.GetList()) {
+				if (packList.GetList()[i].packId == packFromFile.packId) {
+					packList.GetList()[i] = packFromFile;
+				}
+			}
 		}
 	}
 #elif UNITY_ANDROID
@@ -124,7 +169,6 @@ public class LevelHandler : MonoBehaviour {
 	public void SaveLevelData() {
 		BinaryFormatter bf = new BinaryFormatter();
 		FileStream file = File.Create(LEVEL_DATA_FILENAME);
-		//bf.Serialize(file, levelLists);
 		bf.Serialize(file, packList);
 		file.Close();
 	}
@@ -135,6 +179,14 @@ public class LevelHandler : MonoBehaviour {
 	public class PackList {
 		List<Pack> packList = new List<Pack>();
 		int version = 1;
+
+		//public PackList() {
+		//	Debug.Log("Packlist constructor");
+		//	foreach (Pack.PackID packId in Enum.GetValues(typeof(Pack.PackID))) {
+		//		//Debug.Log(packId);
+		//		packList.Add(new Pack(packId));
+		//	}
+		//}
 
 		public List<Pack> GetList() {
 			return packList;
@@ -150,7 +202,7 @@ public class LevelHandler : MonoBehaviour {
 		}
 		public Pack NextPack(Pack pack) {
 			for (int i = 0; i < packList.Count - 1; i++) {
-				if (packList[i].packId == pack.packId) {
+				if (packList[i].packId == pack.packId && packList[i+1].packId != Pack.PackID.INTRO) {
 					return packList[i + 1];
 				}
 			}

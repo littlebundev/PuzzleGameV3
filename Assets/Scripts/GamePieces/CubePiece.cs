@@ -20,6 +20,10 @@ public class CubePiece : GamePiece {
 	float rotationTime;
 	[SerializeField]
 	GameObject directionButtonGroup;
+	[SerializeField]
+	GameObject[] directionButtonGlowObjects;
+	[SerializeField]
+	GameObject[] directionButtonNonGlowObjects;
 
 
 	private void Start() {
@@ -102,20 +106,30 @@ public class CubePiece : GamePiece {
 		GameController.GetInstance().AnimateEnd();
 	}
 	private void ChangeOrientation(Orientation orientation1, Orientation orientation2) {
-		if (currentOrientation == orientation1) currentOrientation = orientation2;
-		else if (currentOrientation == orientation2) currentOrientation = orientation1;
+		if (currentOrientation == orientation1)
+			currentOrientation = orientation2;
+		else if (currentOrientation == orientation2)
+			currentOrientation = orientation1;
 	}
 
 
 	public override bool[] CheckConnections() {
-		if (pieceAnimating) return new bool[4];
-		else if (currentOrientation == Orientation.TOP_BOTTOM) return new bool[4] { true, true, true, true };
-		//else if (currentOrientation == Orientation.EAST_WEST) return new bool[4] { true, false, true, false };
-		//else return new bool[4] { false, true, false, true };
-		else return new bool[4];
+		if (pieceAnimating)
+			return new bool[4];
+		else if (currentOrientation == Orientation.TOP_BOTTOM)
+			return new bool[4] { true, true, true, true };
+		else
+			return new bool[4];
 	}
 
 
-	//public override void InWinPath(bool inWinPath) {
-	//}
+	public override void InitMaterials(Material[] newMaterials) {
+		foreach(GameObject obj in directionButtonNonGlowObjects) {
+			obj.GetComponent<Renderer>().sharedMaterial = newMaterials[0];
+		}
+		foreach (GameObject obj in directionButtonGlowObjects) {
+			obj.GetComponent<Renderer>().sharedMaterial = newMaterials[1];
+		}
+		base.InitMaterials(newMaterials);
+	}
 }

@@ -51,20 +51,33 @@ public class LevelEditor : MonoBehaviour {
 	InputField reward2Field;
 	[SerializeField]
 	InputField reward1Field;
+	[SerializeField]
+	Toggle largeToggle;
 
 	[Header("Cam Fields")]
 	[SerializeField]
 	Slider camZoomSlider;
+	[SerializeField]
+	float camSpeed = .5f;
+	[SerializeField]
+	InputField camXField;
+	[SerializeField]
+	InputField camYField;
+	[SerializeField]
+	InputField camZField;
 
 	[Header("Other Fields")]
 	[SerializeField]
 	Text winMovesText;
-	
+	[SerializeField]
+	Image recImage;
 
 	private LevelHandler levelHandler;
-	//private Level editingLevel;
 	private Pack.Level editingLevel;
 	private Camera cam;
+
+	public bool RecordingMoves { get; set; }
+	string moveList;
 
 
 	private void Start() {
@@ -72,7 +85,32 @@ public class LevelEditor : MonoBehaviour {
 		cam = FindObjectOfType<Camera>();
 		editingLevel = new Pack.Level(levelHandler.CurrentLevel);
 		editingMode.text = mode.ToString();
+		recImage.gameObject.SetActive(false);
 		UpdateUIFromLevelData();
+	}
+
+	private void Update() {
+		if (Input.GetKey(KeyCode.RightArrow)) {
+			cam.transform.Translate(new Vector3(camSpeed * Time.deltaTime, 0, 0));
+			UpdateCamPosFields();
+		}
+		if (Input.GetKey(KeyCode.LeftArrow)) {
+			cam.transform.Translate(new Vector3(-camSpeed * Time.deltaTime, 0, 0));
+			UpdateCamPosFields();
+		}
+		if (Input.GetKey(KeyCode.DownArrow)) {
+			cam.transform.Translate(new Vector3(0, -camSpeed * Time.deltaTime, 0));
+			UpdateCamPosFields();
+		}
+		if (Input.GetKey(KeyCode.UpArrow)) {
+			cam.transform.Translate(new Vector3(0, camSpeed * Time.deltaTime, 0));
+			UpdateCamPosFields();
+		}
+	}
+	public void UpdateCamPosFields() {
+		camXField.text = cam.transform.position.x.ToString();
+		camYField.text = cam.transform.position.y.ToString();
+		camZField.text = cam.transform.position.z.ToString();
 	}
 
 
@@ -84,6 +122,8 @@ public class LevelEditor : MonoBehaviour {
 
 		if (editingLevel.levelType == 0) timeLimitToggle.isOn = false;
 		else timeLimitToggle.isOn = true;
+		if (editingLevel.large) largeToggle.isOn = true;
+		else largeToggle.isOn = false;
 
 		limit3Field.text = editingLevel.levelLimits[0].ToString();
 		limit2Field.text = editingLevel.levelLimits[1].ToString();
@@ -93,8 +133,13 @@ public class LevelEditor : MonoBehaviour {
 		reward1Field.text = editingLevel.levelRewards[2].ToString();
 
 		camZoomSlider.value = GameController.DEFAULT_ORTHO_SIZE - editingLevel.camZoomAdjustment;
-		Debug.Log(camZoomSlider.value);
 		cam.orthographicSize = editingLevel.camZoomAdjustment;
+
+		winMovesText.text = editingLevel.winMoveListString;
+		moveList = editingLevel.winMoveListString;
+
+		ResetCamWithLevelData();
+		UpdateCamPosFields();
 	}
 
 
@@ -128,6 +173,8 @@ public class LevelEditor : MonoBehaviour {
 
 		if (timeLimitToggle.isOn) editingLevel.levelType = Pack.Level.LevelType.TIMED;
 		else editingLevel.levelType = Pack.Level.LevelType.MOVES;
+		if (largeToggle.isOn) editingLevel.large = true;
+		else editingLevel.large = false;
 
 		editingLevel.levelLimits[0] = int.Parse(limit3Field.text);
 		editingLevel.levelLimits[1] = int.Parse(limit2Field.text);
@@ -137,6 +184,11 @@ public class LevelEditor : MonoBehaviour {
 		editingLevel.levelRewards[2] = int.Parse(reward1Field.text);
 
 		editingLevel.camZoomAdjustment = GameController.DEFAULT_ORTHO_SIZE - camZoomSlider.value;
+		editingLevel.camX = cam.transform.position.x;
+		editingLevel.camY = cam.transform.position.y;
+		editingLevel.camZ = cam.transform.position.z;
+
+		editingLevel.winMoveListString = moveList;
 
 		levelHandler.CurrentLevel.Copy(editingLevel);
 		levelHandler.SaveLevelData();
@@ -165,16 +217,27 @@ public class LevelEditor : MonoBehaviour {
 		editingMode.text = mode.ToString();
 	}
 	public void UIRecMoves() {
-
+		if (RecordingMoves) {
+			RecordingMoves = false;
+			recImage.gameObject.SetActive(false);
+			UISave();
+		} else {
+			RecordingMoves = true;
+			recImage.gameObject.SetActive(true);
+			moveList = "";
+			while (mode != Mode.MIX_FOR_GAME) {
+				UIChangeMode();
+			}
+		}
 	}
 	public void UINextPack() {
-		if (levelHandler.NextPack()) {
+		if (levelHandler.GoToNextPack()) {
 			ChangeLevel(0);
 			SceneManager.LoadScene("LevelEditor");
 		} else Debug.Log("Next pack does not exist.");
 	}
 	public void UIPrevPack() {
-		if (levelHandler.PrevPack()) {
+		if (levelHandler.GoToPrevPack()) {
 			ChangeLevel(0);
 			SceneManager.LoadScene("LevelEditor");
 		} else Debug.Log("Prev pack does not exist.");
@@ -219,7 +282,7 @@ public class LevelEditor : MonoBehaviour {
 					levelHandler.CurrentLevel.winStatePieceLU.GetLength(0) *
 					levelHandler.CurrentLevel.winStatePieceLU.GetLength(1));
 			gameBoard.Clear();
-			gameBoard.InitGamePieces(editingLevel);
+			gameBoard.InitGamePieces(levelHandler.CurrentPack, editingLevel);
 		}
 	}
 	public void UIReset() {
@@ -228,7 +291,7 @@ public class LevelEditor : MonoBehaviour {
 				levelHandler.CurrentLevel.pieceLU.GetLength(0) *
 				levelHandler.CurrentLevel.pieceLU.GetLength(1));
 		gameBoard.Clear();
-		gameBoard.InitGamePieces(editingLevel);
+		gameBoard.InitGamePieces(levelHandler.CurrentPack, editingLevel);
 		UpdateUIFromLevelData();
 	}
 	public void UICopy() {
@@ -239,7 +302,7 @@ public class LevelEditor : MonoBehaviour {
 		int tempLevelNumber = editingLevel.levelNumber;
 		editingLevel.Copy(levelHandler.CopiedLevel);
 		editingLevel.levelNumber = tempLevelNumber;
-		gameBoard.InitGamePieces(editingLevel);
+		gameBoard.InitGamePieces(levelHandler.CurrentPack, editingLevel);
 		UpdateUIFromLevelData();
 	}
 
@@ -261,6 +324,15 @@ public class LevelEditor : MonoBehaviour {
 		editingLevel.camZoomAdjustment = GameController.DEFAULT_ORTHO_SIZE - camZoomSlider.value;
 		cam.orthographicSize = editingLevel.camZoomAdjustment;
 	}
+	public void ResetCam() {
+		cam.transform.position = new Vector3(LevelHandler.DEFAULT_CAM_POS_X, LevelHandler.DEFAULT_CAM_POS_Y, LevelHandler.DEFAULT_CAM_POS_Z);
+		UpdateCamPosFields();
+	}
+	public void ResetCamWithLevelData() {
+		if (editingLevel.camX != 0 && editingLevel.camY != 0 && editingLevel.camZ != 0) {
+			cam.transform.position = new Vector3(editingLevel.camX, editingLevel.camY, editingLevel.camZ);
+		}
+	}
 
 
 	private string GenerateLevelName() {
@@ -279,6 +351,25 @@ public class LevelEditor : MonoBehaviour {
 			if (level.levelName == name) return false;
 		}
 		return true;
+	}
+
+
+	public void PieceClicked(GamePiece gamePiece, CubePiece.Direction direction) {
+		if (RecordingMoves) {
+			switch (gamePiece.pieceType) {
+				case GamePiece.PieceType.CUBE:
+					moveList = "C" + gamePiece.XPos + "," + gamePiece.ZPos + " " + moveList;
+					break;
+				case GamePiece.PieceType.ROTATION:
+					moveList = "R" + gamePiece.XPos + "," + gamePiece.ZPos + " " + moveList;
+					break;
+				case GamePiece.PieceType.TOGGLE:
+					moveList = "T" + gamePiece.XPos + "," + gamePiece.ZPos + " " + moveList;
+					break;
+			}
+			Debug.Log(moveList);
+			winMovesText.text = moveList;
+		}
 	}
 
 #endif

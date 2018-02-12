@@ -126,12 +126,14 @@
     <Compile Include="Assets\Plugins\UnityPurchasing\script\IAPButton.cs" />
     <Compile Include="Assets\Plugins\UnityPurchasing\script\IAPConfigurationHelper.cs" />
     <Compile Include="Assets\Plugins\UnityPurchasing\script\IAPDemo.cs" />
+    <Compile Include="Assets\Plugins\UnityPurchasing\script\IAPDemoProductUI.cs" />
     <Compile Include="Assets\Plugins\UnityPurchasing\script\IAPListener.cs" />
     <Compile Include="Assets\Plugins\UnityPurchasing\script\PurchasingCheck.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyPBRShader.shader" />
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyUnlitShader.shader" />
+    <None Include="Assets\Plugins\UnityPurchasing\Android\proguard-user.txt.OPTIONAL.txt" />
     <None Include="Assets\Plugins\UnityPurchasing\script\link.xml" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramRender.shader" />

@@ -171,6 +171,10 @@
     <Compile Include="Assets\PostProcessing\Runtime\Utils\MaterialFactory.cs" />
     <Compile Include="Assets\PostProcessing\Runtime\Utils\RenderTextureFactory.cs" />
     <Compile Include="Assets\PostProcessing\Utilities\CustomMotionTexture\ExampleWheelController.cs" />
+    <Compile Include="Assets\Scripts\AdManager.cs" />
+    <Compile Include="Assets\Scripts\CameraAspect.cs" />
+    <Compile Include="Assets\Scripts\CanvasScaler.cs" />
+    <Compile Include="Assets\Scripts\ColorManager.cs" />
     <Compile Include="Assets\Scripts\Fader.cs" />
     <Compile Include="Assets\Scripts\GameBoard.cs" />
     <Compile Include="Assets\Scripts\GameController.cs" />
@@ -182,7 +186,6 @@
     <Compile Include="Assets\Scripts\GamePieces\RotationPiece.cs" />
     <Compile Include="Assets\Scripts\GamePieces\StartPiece.cs" />
     <Compile Include="Assets\Scripts\GamePieces\TogglePiece.cs" />
-    <Compile Include="Assets\Scripts\Level.cs" />
     <Compile Include="Assets\Scripts\LevelEditor\CamControl.cs" />
     <Compile Include="Assets\Scripts\LevelEditor\LEGameBoard.cs" />
     <Compile Include="Assets\Scripts\LevelEditor\LEPiece.cs" />
@@ -198,6 +201,7 @@
     <Compile Include="Assets\Scripts\Pack.cs" />
     <Compile Include="Assets\Scripts\PlayerData.cs" />
     <Compile Include="Assets\Scripts\RotateOverTime.cs" />
+    <Compile Include="Assets\Scripts\SoundManager.cs" />
     <Compile Include="Assets\Scripts\TouchManager.cs" />
     <Compile Include="Assets\Scripts\Util.cs" />
     <Compile Include="Assets\Scripts\WinPanel.cs" />
@@ -243,6 +247,7 @@
   <ItemGroup>
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyPBRShader.shader" />
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyUnlitShader.shader" />
+    <None Include="Assets\Plugins\UnityPurchasing\Android\proguard-user.txt.OPTIONAL.txt" />
     <None Include="Assets\Plugins\UnityPurchasing\script\link.xml" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramRender.shader" />

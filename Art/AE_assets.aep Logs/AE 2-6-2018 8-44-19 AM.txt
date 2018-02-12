@@ -1,0 +1,12 @@
+Adobe After Effects v13.5 Windows 64 render log for project “AE_assets.aep”
+
+Rendering started on 2/6/2018 at 8:44:19 AM
+
+  2/6/2018 8:44:19 AM: Starting composition “Icon”.
+
+  Output To: F:\UnityProjects\Puzzle Game v3\Art\AE_Export\Icon.png    2/6/2018 8:44:19 AM: Finished composition “Icon”.
+
+
+  Total Time Elapsed: 0 Seconds
+Log closed on 2/6/2018 at 8:44:19 AM
+

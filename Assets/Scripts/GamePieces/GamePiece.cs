@@ -22,13 +22,15 @@ public abstract class GamePiece : MonoBehaviour {
 	public int ZPos { get; set; }
 
 	public bool pieceAnimating;
-	private bool isGlowing;
+	protected bool isGlowing;
 
 	[Header("GamePiece Options")]
 	[SerializeField]
 	protected GameObject model;
 	[SerializeField]
 	GameObject glowObject;
+	[SerializeField]
+	GameObject nonGlowObject;
 	[SerializeField]
 	Material[] materials;
 	[SerializeField]
@@ -63,6 +65,23 @@ public abstract class GamePiece : MonoBehaviour {
 	}
 	public bool IsGlowing() {
 		return isGlowing;
+	}
+
+
+	public virtual void InitMaterials(Material[] newMaterials) {
+		if (pieceType == PieceType.TOGGLE || pieceType == PieceType.ROTATION || pieceType == PieceType.CUBE || pieceType == PieceType.END) {
+			materials[0] = newMaterials[1];
+			materials[1] = newMaterials[2];
+
+			if (isGlowing) {
+				glowObject.GetComponent<Renderer>().sharedMaterial = materials[0];
+			} else {
+				glowObject.GetComponent<Renderer>().sharedMaterial = materials[1];
+			}
+
+			if (pieceType != PieceType.END)
+				nonGlowObject.GetComponent<Renderer>().sharedMaterial = newMaterials[0];
+		}
 	}
 
 #if UNITY_EDITOR

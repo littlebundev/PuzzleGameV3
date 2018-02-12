@@ -12,6 +12,9 @@ public class WinPanel : MonoBehaviour {
 	int stars;
 	int points;
 
+	[SerializeField]
+	AudioClip starClip;
+
 	
 	void Start () {
 		animator = GetComponent<Animator>();
@@ -25,16 +28,22 @@ public class WinPanel : MonoBehaviour {
 	}
 	public void EnterFinished() {
 		StartCoroutine(ShowPoints());
-		if (stars > 0)
+		if (stars > 0) {
 			animator.SetTrigger("Star1");
+			SoundManager.instance.PlaySingle(starClip, false);
+		}
 	}
 	public void Star1Finished() {
-		if (stars > 1)
+		if (stars > 1) {
 			animator.SetTrigger("Star2");
+			SoundManager.instance.PlaySingle(starClip, false, 1.03f);
+		}
 	}
 	public void Star2Finished() {
-		if (stars > 2)
+		if (stars > 2) {
 			animator.SetTrigger("Star3");
+			SoundManager.instance.PlaySingle(starClip, false, 1.06f);
+		}
 	}
 	private IEnumerator ShowPoints() {
 		for (float t = 0; t < 1f; t += Time.deltaTime) {

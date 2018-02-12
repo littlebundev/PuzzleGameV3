@@ -4,16 +4,20 @@ using UnityEngine;
 
 [System.Serializable]
 public class Pack {
+	public static readonly Color DEFAULT_PRIMARY_COLOR = new Color(.941f, .682f, .1255f, 1);
+	public static readonly Color DEFAULT_SECONDARY_COLOR = new Color(240, 174, 32, 1);
 
 	public enum PackID {
-		PACK_1, PACK_2,
-		PAID_PACK_1 = 1000,
-		INTRO = 2000
+		INTRO,
+		PACK_1, PACK_2, PACK_3, PACK_4,
+		//PACK_5, PACK_6, PACK_7, PACK_8
+		//PAID_PACK_1 = 1000
 	}
 
 	public PackID packId;
 	public List<Level> levelList;
 	public string title;
+	public bool premiumPack;
 
 
 	public Pack(PackID ID) {
@@ -53,13 +57,18 @@ public class Pack {
 
 
 		public LevelType levelType;
+		public bool large;
 
 		public int[] levelLimits;
 		public int[] levelRewards;
 
 		public List<int> winMoveList;
+		public string winMoveListString;
 
 		public float camZoomAdjustment;
+		public float camX;
+		public float camY;
+		public float camZ;
 	
 
 		public Level() {
@@ -76,9 +85,10 @@ public class Pack {
 		private void InitVars() {
 			pieceLU = new GP_LUT[GameBoard.BOARD_SIZE_X, GameBoard.BOARD_SIZE_Z];
 			winStatePieceLU = new GP_LUT[GameBoard.BOARD_SIZE_X, GameBoard.BOARD_SIZE_Z];
-			levelLimits = new int[4] { 10, 8, 5, 0 };
+			levelLimits = new int[4] { 4, 6, 8, 0 };
 			levelRewards = new int[4] { 150, 125, 100, 0 };
-			winMoveList = new List<int>();
+			//winMoveList = new List<int>();
+			winMoveListString = "";
 			camZoomAdjustment = GameController.DEFAULT_ORTHO_SIZE;
 		}
 
@@ -91,10 +101,15 @@ public class Pack {
 			else
 				winStatePieceLU = new GP_LUT[GameBoard.BOARD_SIZE_X, GameBoard.BOARD_SIZE_Z];
 			levelType = levelToCopy.levelType;
+			large = levelToCopy.large;
 			System.Array.Copy(levelToCopy.levelLimits, levelLimits, levelToCopy.levelLimits.Length);
 			System.Array.Copy(levelToCopy.levelRewards, levelRewards, levelToCopy.levelRewards.Length);
-			winMoveList = new List<int>(levelToCopy.winMoveList);
+			//winMoveList = new List<int>(levelToCopy.winMoveList);
+			winMoveListString = levelToCopy.winMoveListString;
 			camZoomAdjustment = levelToCopy.camZoomAdjustment;
+			camX = levelToCopy.camX;
+			camY = levelToCopy.camY;
+			camZ = levelToCopy.camZ;
 		}
 	}
 }

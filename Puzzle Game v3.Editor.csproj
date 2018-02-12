@@ -231,6 +231,7 @@
   <ItemGroup>
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyPBRShader.shader" />
     <None Include="Assets\Plugins\LowPolyShaders\Shaders\LowPolyUnlitShader.shader" />
+    <None Include="Assets\Plugins\UnityPurchasing\Android\proguard-user.txt.OPTIONAL.txt" />
     <None Include="Assets\Plugins\UnityPurchasing\script\link.xml" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramCompute.compute" />
     <None Include="Assets\PostProcessing\Editor Resources\Monitors\HistogramRender.shader" />
